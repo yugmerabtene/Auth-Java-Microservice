@@ -157,4 +157,3 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 7. Documentation technique et guide de déploiement.
 8. Guide de sécurisation du VPS (SSH, UFW, Fail2ban).
 9. Images Docker disponibles sur **Docker Hub**.
-👉 Veux-tu que je prépare aussi un **exemple de workflow GitHub Actions (`ci-cd.yml`)** qui build les images et les pousse automatiquement sur Docker Hub (avec login via `secrets.DOCKERHUB_USERNAME` et `secrets.DOCKERHUB_TOKEN`) ?
