@@ -1,4 +1,4 @@
-# Cahier des charges – Projet Java Spring (Java 21 OpenJDK) Microservices Dockerisés avec Kafka, Nginx et CI/CD GitHub
+# Cahier des charges – Projet Java Spring (Java 21 OpenJDK) Microservices Dockerisés avec Kafka, Nginx, Docker Hub et CI/CD GitHub
 
 ## 1. Contexte et objectifs
 
@@ -7,6 +7,7 @@ La stack technique inclura :
 
 * **Java 21 (OpenJDK LTS)** → gratuit en production (aucune licence à payer).
 * **Docker** pour la conteneurisation.
+* **Docker Hub** comme registre de conteneurs pour les images Docker.
 * **Kafka** comme broker de messages.
 * **Nginx** comme reverse proxy pour HTTPS.
 * **GitHub Actions** pour CI/CD.
@@ -67,12 +68,13 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 * **Documentation API** : Swagger/OpenAPI.
 * **Proxy** : Nginx (terminaison TLS + reverse proxy).
 * **Conteneurisation** : Docker + Docker Compose.
+* **Registre d’images** : Docker Hub (stockage et distribution des images Docker).
 * **CI/CD** : GitHub Actions.
 * **Serveur** : VPS Ubuntu Server 22.04.
 
 ---
 
-## 4. Exigences CI/CD (GitHub Actions)
+## 4. Exigences CI/CD (GitHub Actions + Docker Hub)
 
 ### 4.1 Stratégie de branches
 
@@ -93,8 +95,20 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
     2. Tests unitaires
     3. Tests d’intégration
     4. Build images Docker
-    5. Push images vers registre privé (Docker Hub ou GHCR)
+    5. Push images vers **Docker Hub**
     6. Déploiement auto sur VPS (pull + restart via Docker Compose)
+
+---
+
+### 4.2 Pipeline type
+
+* Étape 1 : Checkout code
+* Étape 2 : Build Maven (`mvn clean install`)
+* Étape 3 : Tests unitaires
+* Étape 4 : Tests d’intégration (Kafka, MySQL avec Testcontainers)
+* Étape 5 (main uniquement) : Build images Docker
+* Étape 6 (main uniquement) : Push images vers Docker Hub
+* Étape 7 (main uniquement) : Déploiement automatique sur VPS Ubuntu
 
 ---
 
@@ -104,7 +118,7 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 
 * JWT pour l’authentification.
 * Mots de passe hashés avec **bcrypt**.
-* Secrets (DB, JWT keys, Kafka) dans **GitHub Secrets**.
+* Secrets (DB, JWT keys, Kafka, Docker Hub credentials) stockés dans **GitHub Secrets**.
 * Communication sécurisée (TLS).
 
 ### 5.2 VPS Ubuntu Server
@@ -112,7 +126,7 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 * **Accès SSH par clé uniquement** (désactivation mot de passe).
 * **UFW** : ports autorisés 22 (SSH), 80 (HTTP), 443 (HTTPS), Kafka interne.
 * **Fail2ban** : bloque brute force SSH.
-* Mise à jour **manuelle et contrôlée** des paquets (via `apt update && apt upgrade`).
+* Mises à jour **manuelles et contrôlées** (`apt update && apt upgrade`).
 * Utilisateur non-root avec `sudo`.
 * Logs surveillés (`journalctl`, logs Nginx).
 
@@ -126,6 +140,7 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 * **Tests** : JUnit 5, Mockito, Testcontainers.
 * **Proxy** : Nginx.
 * **Conteneurisation** : Docker, Docker Compose.
+* **Registre Docker** : Docker Hub (privé ou public).
 * **Déploiement** : VPS Ubuntu Server 22.04.
 * **Monitoring (V2)** : Prometheus + Grafana.
 
@@ -141,3 +156,5 @@ Le pipeline CI/CD doit garantir que **si les tests échouent, aucune image n’e
 6. Tests d’intégration Kafka/MySQL.
 7. Documentation technique et guide de déploiement.
 8. Guide de sécurisation du VPS (SSH, UFW, Fail2ban).
+9. Images Docker disponibles sur **Docker Hub**.
+👉 Veux-tu que je prépare aussi un **exemple de workflow GitHub Actions (`ci-cd.yml`)** qui build les images et les pousse automatiquement sur Docker Hub (avec login via `secrets.DOCKERHUB_USERNAME` et `secrets.DOCKERHUB_TOKEN`) ?
